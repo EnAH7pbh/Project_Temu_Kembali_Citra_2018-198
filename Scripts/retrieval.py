@@ -1,13 +1,12 @@
-import os
 import sys
-import numpy as np
 from scipy.spatial.distance import cdist
 from torch.autograd import Variable
-from config import *
-from utils import *
-from data import Fashion_attr_prediction
-from net import f_model, c_model, p_model
+from Scripts.utils import *
+from Scripts.data import Fashion_attr_prediction
+from Scripts.net import f_model, c_model, p_model
 import joblib
+import skimage.io
+import cv2
 
 
 @timer_with_task("Loading model")
@@ -34,8 +33,8 @@ def load_feat_db():
     color_feats = np.load(color_feat)
     with open(feat_list) as f:
         labels = list(map(lambda x: x.strip(), f.readlines()))
-    #train kmeans use return deep_feats, labels
-    return deep_feats,color_feats, labels
+    # train kmeans use return deep_feats, labels
+    return deep_feats, color_feats, labels
 
 
 @timer_with_task("Loading feature K-means model")
@@ -110,22 +109,41 @@ def dump_single_feature(img_path, extractor):
 
 def visualize(original, result, cols=1):
     import matplotlib.pyplot as plt
-    import cv2
     n_images = len(result) + 1
     titles = ["Original"] + ["Score: {:.4f}".format(v) for k, v in result]
     images = [original] + [k for k, v in result]
     mod_full_path = lambda x: os.path.join(DATASET_BASE, x) \
         if os.path.isfile(os.path.join(DATASET_BASE, x)) \
-        else os.path.join(DATASET_BASE, 'in_shop', x,)
+        else os.path.join(DATASET_BASE, 'in_shop', x, )
     images = list(map(mod_full_path, images))
     images = list(map(lambda x: cv2.cvtColor(cv2.imread(x), cv2.COLOR_BGR2RGB), images))
     fig = plt.figure()
     for n, (image, title) in enumerate(zip(images, titles)):
-        a = fig.add_subplot(cols,int( np.ceil(n_images / float(cols))), n + 1)
+        a = fig.add_subplot(cols, int(np.ceil(n_images / float(cols))), n + 1)
         plt.imshow(image)
         a.set_title(title)
     fig.set_size_inches(np.array(fig.get_size_inches()) * n_images * 0.25)
     plt.show()
+
+
+def processWeb(input):
+    extractor = load_test_model()
+    deep_feats, color_feats, labels = load_feat_db()
+    f = dump_single_feature(os.path.join('..',input), extractor)
+    clf = load_kmeans_model()
+    i = 1
+    trowReslut = 'static/result/'
+    result = naive_query(f, deep_feats, color_feats, labels, 6)
+    result_kmeans = kmeans_query(clf, f, deep_feats, color_feats, labels, 6)
+    images = [k for k, v in result+result_kmeans]
+    mod_full_path = lambda x: os.path.join(DATASET_BASE, x) \
+        if os.path.isfile(os.path.join(DATASET_BASE, x)) \
+        else os.path.join(DATASET_BASE, 'in_shop', x, )
+    images = list(map(mod_full_path, images))
+    for idir in images:
+        image = skimage.io.imread(idir)
+        cv2.imwrite(trowReslut + 'res' + str(i) + '.jpg', cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        i += 1
 
 
 if __name__ == "__main__":

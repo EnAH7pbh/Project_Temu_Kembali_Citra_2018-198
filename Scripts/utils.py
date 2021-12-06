@@ -1,4 +1,4 @@
-from config import *
+from Scripts.config import *
 import os
 import time
 import torch

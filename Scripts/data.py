@@ -1,6 +1,5 @@
 import torch.utils.data as data
-import torch
-from config import *
+from Scripts.config import *
 import os
 from PIL import Image
 import random

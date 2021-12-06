@@ -4,17 +4,17 @@ TEST_BATCH_SIZE = 5
 TRIPLET_BATCH_SIZE = 5
 EXTRACT_BATCH_SIZE = 5
 TEST_BATCH_COUNT = 5
-NUM_WORKERS = 2
+NUM_WORKERS =2
 LR = 0.001
 MOMENTUM = 0.5
 EPOCH = 10
-DUMPED_MODEL = "models/model_10_final.pth.tar"
+DUMPED_MODEL = "D:\Semester7\code\Project_Temu_Kembali_Citra_2018-198\Data\models\model_10_final.pth.tar"
 
 LOG_INTERVAL = 10
 DUMP_INTERVAL = 500
 TEST_INTERVAL = 100
 
-DATASET_BASE = 'D:\Semester7\code\Project_Temu_Kembali_Citra_2018-198'
+DATASET_BASE = 'D:\Semester7\code\Project_Temu_Kembali_Citra_2018-198\Data'
 ENABLE_INSHOP_DATASET = True
 INSHOP_DATASET_PRECENT = 0.8
 IMG_SIZE = 256
