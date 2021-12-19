@@ -1,27 +1,23 @@
 from __future__ import print_function
 
-import torch
 import random
-import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
 from torch.autograd import Variable
-from config import *
 from utils import *
 from data import Fashion_attr_prediction, Fashion_inshop
 from net import f_model
 
 
 data_transform_train = transforms.Compose([
-    transforms.Scale(IMG_SIZE),
-    transforms.RandomSizedCrop(CROP_SIZE),
+    transforms.Resize(IMG_SIZE),
+    transforms.RandomResizedCrop(CROP_SIZE),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
 data_transform_test = transforms.Compose([
-    transforms.Scale(CROP_SIZE),
+    transforms.Resize(CROP_SIZE),
     transforms.CenterCrop(CROP_SIZE),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -107,8 +103,8 @@ def train(epoch):
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tAll Loss: {:.4f}\t'
                       'Triple Loss({}): {:.4f}\tClassification Loss: {:.4f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
-                    100. * batch_idx / len(train_loader), loss.data[0], triplet_type,
-                    triplet_loss.data[0], classification_loss.data[0]))
+                    100. * batch_idx / len(train_loader), loss.data, triplet_type,
+                    triplet_loss.data, classification_loss.data))
             else:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tClassification Loss: {:.4f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -121,14 +117,14 @@ def train(epoch):
 
 def test():
     model.eval()
-    criterion = nn.CrossEntropyLoss(size_average=False)
+    criterion = nn.CrossEntropyLoss(reduction='sum')
     test_loss = 0
     correct = 0
     for batch_idx, (data, target) in enumerate(test_loader):
         data, target = data.cuda(GPU_ID), target.cuda(GPU_ID)
-        data, target = Variable(data, volatile=True), Variable(target)
+        data, target = Variable(data), Variable(target)
         output = model(data)[0]
-        test_loss += criterion(output, target).data[0]
+        test_loss += criterion(output, target).data
         pred = output.data.max(1, keepdim=True)[1]
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
         if batch_idx > TEST_BATCH_COUNT:
