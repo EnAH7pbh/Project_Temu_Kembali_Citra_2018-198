@@ -1,7 +1,7 @@
 # Project_Temu_Kembali_Citra_2018-198
 Simple image retrieval algorithm on [deep-fashion dataset](http://mmlab.ie.cuhk.edu.hk/projects/DeepFashion/AttributePrediction.html) with pytorch
 
-![Capture](resources/Capture.PNG)
+![Capture](https://github.com/ahmadcah/Project_Temu_Kembali_Citra_2018-198/blob/main/Figure_1.png)
 
 ### Dependencies
 - Python (Compatible with 2 and 3)
